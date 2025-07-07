@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modern Notepad</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    textarea { width: 100%; height: 400px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; }
+    .status { margin-top: 10px; color: green; }
+  </style>
+</head>
+<body>
+  <h1>Modern Notepad</h1>
+  <textarea id="notes"></textarea><br>
+  <button onclick="saveNotes()">Save</button>
+  <div class="status" id="status"></div>
+  <script>
+    // Load notes on page load
+    fetch('/api/notes')
+      .then(res => res.text())
+      .then(data => { document.getElementById('notes').value = data; });
+
+    function saveNotes() {
+      fetch('/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: document.getElementById('notes').value })
+      })
+      .then(res => res.text())
+      .then(msg => {
+        document.getElementById('status').textContent = msg;
+        setTimeout(() => { document.getElementById('status').textContent = ''; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
