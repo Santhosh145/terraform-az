@@ -28,6 +28,27 @@ resource "azurerm_network_interface" "PublicNIC" {
 }
 
 resource "azurerm_linux_virtual_machine" "PublicVM" {
+  provisioner "file" {
+    source      = "${path.module}/index.html"
+    destination = "/home/azureuser/index.html"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update -y",
+      "sudo apt-get install -y nginx",
+      "sudo mv /home/azureuser/index.html /var/www/html/index.html",
+      "sudo systemctl restart nginx"
+    ]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "azureuser"
+    password    = "P@ssw0rd1234!"
+    host        = self.public_ip_address
+    timeout     = "2m"
+  }
   name                = "PublicVM1"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
